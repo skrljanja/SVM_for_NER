@@ -1,10 +1,13 @@
 from CountUtils import countValue
+import sys 
+
+filepath = sys.argv[1]
 
 def countSentences(line):
     seperator = '.\s[A-Z\u017d]'
     valueName = "sentences"
     countValue (line, seperator, valueName)
 
-with open("article_info_sample.jsonl") as file:
+with open(filepath) as file:
          for line in file:
             countSentences(line)
