@@ -22,6 +22,6 @@ def countValue(line, seperator, valueName):
     body = getBody(line)
     title = getTitle(line)
     body.strip()
-    count = countRegEx(seperator, body)
+    count = countRegEx(seperator, body) + 1
     print("Number of {0} in '{1}': {2}".format(valueName, title, count))
 
