@@ -1,0 +1,11 @@
+from CountUtils import countValue
+
+def countWords(line):
+    seperator = '(\s)+'
+    valueName = "words"
+    countValue (line, seperator, valueName)
+
+
+with open("article_info_sample.jsonl") as file:
+         for line in file:
+            countWords(line)
