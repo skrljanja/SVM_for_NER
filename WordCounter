@@ -1,4 +1,7 @@
 from CountUtils import countValue
+import sys 
+
+filepath = sys.argv[1]
 
 def countWords(line):
     seperator = '(\s)+'
@@ -6,6 +9,6 @@ def countWords(line):
     countValue (line, seperator, valueName)
 
 
-with open("article_info_sample.jsonl") as file:
+with open(filepath) as file:
          for line in file:
             countWords(line)
