@@ -5,13 +5,16 @@ Created on Wed Jun  3 16:25:24 2020
 @author: skrlj
 """
 import re
+import csv
 
-def containsRegEx(pattern, string) :
+def MatchesRegEx(pattern, string):
+    """Returns true if a regular expression pattern matches a string"""
     p = re.compile(pattern)
-    isContained = re.subn(p, '', string)[1] == 1
-    return isContained
+    isMatch = p.fullmatch(string)
+    return isMatch
 
 def listContainsLemma(lemma, l):
+    """"Returns true if a list (sentence) contains a lemma"""
     contains = False
     for dictionary in  l:
         if dictionary.get("lemma") == lemma:
@@ -19,6 +22,9 @@ def listContainsLemma(lemma, l):
     return contains
 
 def isAbove (dictionary, lemmas, l):
+    """Return true if one of the input lemmas is
+    above the observed word in the dependancy tree
+    of the sentence. Otherwise return false."""
     above = False
     id = dictionary.get("head")
     while id != 0:
@@ -31,6 +37,9 @@ def isAbove (dictionary, lemmas, l):
     return above
             
 def isBelow(dictionary1, lemma, l):
+    """Return true if one of the input lemmas is
+    below the observed word in the dependancy tree
+    of the sentence. Otherwise return false."""
     below = False
     for dictionary in  l:
         if (dictionary.get("lemma") == lemma and
@@ -39,19 +48,42 @@ def isBelow(dictionary1, lemma, l):
     return below
 
 def SameHead(dictionary1, lemma, l):
+    """Return true if the observed word and a word
+    with the input lemma have the same head in the
+    dependancy tree."""
     sameHead = False 
     for dictionary in  l:
         if (dictionary.get("lemma") == lemma):
             if dictionary.get("head") == dictionary1.get("head"):
                 sameHead = True
     return sameHead
-    
+
+
+
+def isForm(lemma):
+    """Return true if a lemma is of the form corresponding to
+    a date (00.00.0000 or 00/00/0000)"""
+    return MatchesRegEx('[0-9]{1,2}[./][0,9]{1,2}[./][0-9]{2,4}', lemma)
+
+def isNum(dictionary):
+    """Return true if the "upos" value is "NUM"""
+    return dictionary.get("upos") == "NUM"
+
         
+def isMonth(lemma):
+    """Return true if the input lemma corresponds to a month"""
+    month = 'januar|februar|marec|april|maj|junij|julij|avgust|september|november|december'
+    return MatchesRegEx(month, lemma)
+
+    
+
 ## time crit 
 def isTime(dictionary, l):
+    """Combines the criteria for Time, to determine whether 
+    the word is expected to denote time or not."""
     month = 'januar|februar|marec|april|maj|junij|julij|avgust|september|november|december'
     months = ["januar", "februar", "marec", "april","maj", "junij", "julij", "avgust", "september", "november", "december"]
-    isMonth = containsRegEx(month, dictionary.get("lemma"))
+    isMonth = MatchesRegEx(month, dictionary.get("lemma"))
     isHour1 = (dictionary.get("upos") == "NUM" and
               dictionary.get("deprel") == "nummond" and
               dictionary.get("xpos") == "Mlc-pn" and
@@ -64,30 +96,42 @@ def isTime(dictionary, l):
         isAbove(dictionary, ["ura", "leto"], l) or isAbove(dictionary, months, l)):
             isHour1 = False
             isHour2 = False
-
-    return (isHour1 or isHour2 or isMonth)
+    form = isForm(dictionary.get("lemma"))
+    return (isHour1 or isHour2 or isMonth or form)
     
-
 
 def PROPN(dictionary):
     propn = dictionary.get("upos") == "PROPN"
     return propn
 
 
-def Anonymiser(AnnotatedText, file):
+
+def Anonymiser(AnnotatedText, labelsFile, wordsFile):
+    """Creates two files. One is a csv file containing the values of
+    isTime for each token (time_binary.csv). The other is a csv
+    file (words.csv) containing all the tokens in the document, 
+    those denoting time marked with "__". This makes it easier 
+    to spot and fix mistakes the program has made, so that 
+    when we use this data to teach a classifier, it is not 
+    taught from faulty data"""
     newText = ""
     YesNo = []
+    f = open(wordsFile, "a", newline = '')
+    wordwrite = csv.writer(f)
+    csvfile = open(labelsFile, "a", newline = '')   
+    labelwrite = csv.writer(csvfile)
     for list in AnnotatedText:
         for dict in list:
             if isTime(dict, list):
-                dict["text"] = dict["text"] + "*"
-                YesNo.append("1")
+                dict["text"] = dict["text"] + "__"
+                labelwrite.writerow("1")
+                wordwrite.writerow([dict["text"] ])
             else:
-                YesNo.append("0")
+                labelwrite.writerow("0")
+                wordwrite.writerow([dict["text"]])
           #  if PROPN(dictionary):
             #    dictionary["text"] = dictionary["text"] + "_"
             newText = newText + dict["text"] + " "
-    file.write(" ".join(YesNo) + "\n")
     return newText
 
                 

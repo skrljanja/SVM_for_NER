@@ -7,8 +7,8 @@ Created on Wed Jun  3 16:25:03 2020
 
 import json
 
-def nameFile(sourceFilepath):
-    fileName = "anonymised_" + sourceFilepath
+def nameFile(sourceFilepath, string):
+    fileName = string + sourceFilepath
     return fileName
 
 def parseLine(line):

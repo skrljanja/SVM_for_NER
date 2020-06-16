@@ -1,34 +1,35 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Wed Jun  3 13:44:20 2020
 
-@author: skrlj
-"""
+"""This file constructs the files that the SVM classifier
+will be modelled on."""
 
+import csv
 import stanza
 import sys
-from anonymiser_utils import nameFile, parseLine, AddLineToFile
+from anonymiser_utils import parseLine, AddLineToFile
 from anonymiser_criteria import Anonymiser
 
 
+
+"""
 stanza.download('sl')
 nlp = stanza.Pipeline('sl')
 sourceFilepath = sys.argv[1]
-
+"""
 
             
-if __name__ == "__main__":
-    f = open(nameFile(sourceFilepath), "w+")
-    t = open("time_binary.txt", "w+")
-    with open(sourceFilepath) as file:
+def anonymiser(filepath, nlp):
+    f = open("anonymiser.csv", "w", newline = '')
+    writer = csv.writer(f)
+    t = "time_binary.csv"
+    with open(filepath) as file:
         for line in file:
             article_dict = parseLine(line)
             annotatedText = nlp (article_dict.get("body"))
             textDict = annotatedText.to_dict()
-            anonymisedDicts = Anonymiser(textDict, t)
+            anonymisedDicts = Anonymiser(textDict, t, "words.csv")
             article_dict["body"] = anonymisedDicts
             AddLineToFile(f, article_dict)
-            
             
 
 
