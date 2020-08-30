@@ -1,1 +1,1 @@
-# E3
+# using a SVM for named entity recognition
