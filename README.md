@@ -1,3 +1,3 @@
 # Using SVM for Named Entity recognition
 
-details are available in the [notebook](https://github.com/skrljanja/E3/edit/master/notebook.ipynb)
+details are available in the [notebook](hhttps://github.com/skrljanja/E3/blob/master/notebook.ipynb)
